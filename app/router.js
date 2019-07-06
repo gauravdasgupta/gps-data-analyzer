@@ -7,6 +7,7 @@ const Router = EmberRouter.extend({
 });
 
 Router.map(function() {
+  this.route('driver-movement-analysis');
 });
 
 export default Router;

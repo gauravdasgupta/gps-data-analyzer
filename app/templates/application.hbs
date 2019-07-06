@@ -1,5 +1,19 @@
-{{!-- The following component displays Ember's default welcome message. --}}
-<WelcomePage />
-{{!-- Feel free to remove this! --}}
-
-{{outlet}}
+<div class="container">
+  <div class="menu">
+      <h1>
+        <em>GPS Data Analyzer</em>
+      </h1>
+  </div>
+  <div class="body">
+    {{outlet}}
+  </div>
+  <div class="footer">
+        <em>
+            Efficiency and behavior of the program can be understood by changing the model 
+            returned from the driver-movement-analysis route
+            Logic can be tweaked to use latitude and longitudes to understand the vehicle 
+            movements patterns rather than using the speed (which is being used as the core 
+            logic currently)
+        </em>
+  </div>
+</div>
