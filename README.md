@@ -1,7 +1,9 @@
 # gps-data-analyzer
 
 This README outlines the details of collaborating on this Ember application.
-A short introduction of this app could easily go here.
+The basic purpose this is serving is to analyze and calculate based on a given gps data feed that when according to data trend the vehicle is waiting somewhere or wasting time and when its actually moving
+
+The data being used is hardcoded in the router as of now (being returned as Ember Model)
 
 ## Prerequisites
 
