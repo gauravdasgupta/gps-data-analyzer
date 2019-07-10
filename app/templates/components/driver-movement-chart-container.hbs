@@ -2,11 +2,9 @@
 <table class="table table-dark">
   <thead>
     <tr>
-      <th scope="col">segment</th>
-      <th scope="col">milesCovered</th>
-      <th scope="col">timeTaken</th>
-      <th scope="col">startedAt</th>
-      <th scope="col">upto</th>
+      {{#each columns as |column|}}
+      <th scope="col">{{column}}</th>
+      {{/each}}
     </tr>
   </thead>
   <tbody>

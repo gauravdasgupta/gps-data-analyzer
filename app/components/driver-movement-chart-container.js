@@ -1,18 +1,16 @@
 import Component from '@ember/component';
-import EmberObject, {computed} from '@ember/object';
+import {computed} from '@ember/object';
 import moment from 'moment';
 
 export default Component.extend({
-    locVals: '',
     segmentsList: [],
-    columns: [],
     init(){
         this._super(...arguments);
-        this.locVals = this.get('input').data.attributes['relative-location-values'];
-        const cols = ['Segment', 'Miles Covered', 'Time Taken', 'Started At', 'Up to'];
-        const [segment, milesCovered, timeTaken, startedAt, upto] = cols;
-        this.columns = cols;
     },
+
+    columns: computed(function(){
+      return ['Segment', 'Miles Covered', 'Time Taken', 'Started At', 'Up to'];
+    }),
 
     totalMilesCovered: computed('allLocations', function(){
       let miles = Math.round(this.allLocations.reduce((a,b) => a + b.milesFromJobSite, 0));
@@ -23,33 +21,32 @@ export default Component.extend({
       return milesCovered/timeTaken;
     },
 
-    processWaitingSegments(Segment, label, color, waiting, dataChunk, milesCovered){
+    processWaitingSegments(label, color, waiting, dataChunk, milesCovered){
       if(!waiting){
-        this.addToSegments(Segment,dataChunk,milesCovered,label,color);
+        this.addToSegments(dataChunk,milesCovered,label,color);
       }
       else{
-        this.mergeToLastSegment(dataChunk,Segment,milesCovered,label,color);
+        this.mergeToLastSegment(dataChunk,milesCovered,label,color);
       }
     },
 
-    processMovingSegments(Segment, label, color, moving, dataChunk, milesCovered){
+    processMovingSegments(label, color, moving, dataChunk, milesCovered){
       if(!moving){
-        this.addToSegments(Segment,dataChunk,milesCovered,label,color);
+        this.addToSegments(dataChunk,milesCovered,label,color);
       }
       else{
-        this.mergeToLastSegment(dataChunk,Segment,milesCovered,label,color);
+        this.mergeToLastSegment(dataChunk,milesCovered,label,color);
       }
     },
 
-    mergeToLastSegment(dataChunk,Segment,milesCovered,label,color){
+    mergeToLastSegment(dataChunk,milesCovered,label,color){
         let lastSegment = this.segmentsList.pop();
         let mergedChunk = [...lastSegment.locations,...dataChunk];
-        this.addToSegments(Segment,mergedChunk,milesCovered,label,color);
+        this.addToSegments(mergedChunk,milesCovered,label,color);
     },
 
     segments: computed(function(){
-      const Segment = EmberObject.extend({});
-      const minSpeed = 15; //mph
+      const minSpeed = 15;
       let allLocations = this.allLocations;
       let waiting = false;
       let moving = false;
@@ -69,14 +66,14 @@ export default Component.extend({
         if(speed<=minSpeed){
           let label = "waiting";
           let color = "red-box";
-          this.processWaitingSegments(Segment, label, color, waiting, dataChunk, milesCovered);
+          this.processWaitingSegments(label, color, waiting, dataChunk, milesCovered);
           waiting = true;
           moving = false;
         }
         else{
           let label = "moving";
           let color = "blue-box";
-          this.processMovingSegments(Segment, label, color, moving, dataChunk, milesCovered);
+          this.processMovingSegments(label, color, moving, dataChunk, milesCovered);
           moving = true;
           waiting = false;
         }
@@ -85,28 +82,27 @@ export default Component.extend({
     }),
     
     allLocations: computed(function(){
-        let myData = this.locVals;
+        let myData = this.get('input').data.attributes['relative-location-values'];
         let allLocations = [];
-        const Location = EmberObject.extend({});
         let that = this;
         myData.forEach((entry) => {
-          let loc = that.createLocation(Location, entry[0], entry[1], entry[2], entry[3]);
+          let loc = that.createLocation(entry[0], entry[1], entry[2], entry[3]);
           allLocations.pushObject(loc);
         });
         return allLocations;
       }),
     
-      createLocation(Location, at, latitude, longitude, milesFromJobSite) {
-        return Location.create({
+      createLocation(at, latitude, longitude, milesFromJobSite) {
+        return {
           at: at,
           latitude: latitude,
           longitude: longitude,
           milesFromJobSite: milesFromJobSite
-        });
+        };
       },
     
-      createSegment(Segment, name, totalMilesTravelled, totalTimeTaken, startTime, stopTime, locations, color) {
-        return Segment.create({
+      createSegment(name, totalMilesTravelled, totalTimeTaken, startTime, stopTime, locations, color) {
+        return {
           name: name,
           totalMilesTravelled: totalMilesTravelled,
           totalTimeTaken: totalTimeTaken,
@@ -114,10 +110,10 @@ export default Component.extend({
           stopTime: stopTime,
           locations: locations,
           color: color
-        });
+        };
       },
     
-      addToSegments(Segment,chunk,milesCovered,label,color){
+      addToSegments(chunk,milesCovered,label,color){
                   let endAt = chunk[chunk.length - 1].at;
                   let startAt = chunk[0].at;
                   let endTime = startAt.replace(/T/g, ' ').replace(/Z/g, '');
@@ -128,7 +124,7 @@ export default Component.extend({
                   var hours = duration.asHours();
                   let milesInSegment = milesCovered;
                   this.segmentsList.pushObject(
-                  this.createSegment(Segment, label,
+                  this.createSegment(label,
                   milesInSegment, hours,
                     startAt, endAt, chunk, color));
       }
